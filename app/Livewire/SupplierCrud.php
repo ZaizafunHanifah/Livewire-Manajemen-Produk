@@ -13,7 +13,7 @@ class SupplierCrud extends Component
     public function render()
     {
         $this->suppliers = Supplier::all();
-        return view('livewire.supplier-crud');
+        return view('livewire.supplier-crud')->layout('layouts.sidebar');
     }
 
     public function create()

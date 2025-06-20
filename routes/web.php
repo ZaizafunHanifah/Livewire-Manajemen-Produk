@@ -8,6 +8,8 @@ use App\Livewire\LaporanPenjualan;
 use App\Livewire\PenjualanCrud;
 use App\Livewire\PenjualanDanLaporan;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\LoginController;
+
 
 Route::view('/', 'welcome');
 
@@ -26,14 +28,6 @@ Route::middleware(['auth'])->group(function() {
 Route::middleware(['auth'])->group(function() {
     Route::get('/kategori', KategoriCrud::class)->name('kategori');
     Route::get('/supplier', SupplierCrud::class)->name('supplier');
-});
-
-Route::middleware(['auth'])->group(function() {
-    Route::get('/laporan', LaporanPenjualan::class)->name('laporan');
-});
-
-Route::middleware(['auth'])->group(function() {
-    Route::get('/penjualan', PenjualanCrud::class)->name('penjualan');
 });
 
 Route::middleware(['auth'])->group(function() {

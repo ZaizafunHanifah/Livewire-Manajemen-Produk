@@ -1,5 +1,5 @@
 <?php
-// app/Http/Livewire/ProdukCrud.php
+
 namespace App\Livewire;
 
 use Livewire\Component;
@@ -12,28 +12,36 @@ class ProdukCrud extends Component
     public $nama_produk, $harga, $stok, $kategori_id, $supplier_id, $produk_id;
     public $isOpen = false;
 
-    // Tambahkan properti filter
+    // Filter properti
     public $filter_kategori = '';
     public $filter_supplier = '';
 
     public function render()
     {
-        $query = Produk::with('kategori', 'supplier');
+        logger('Render dipanggil. Filter:', [
+            'kategori' => $this->filter_kategori,
+            'supplier' => $this->filter_supplier,
+        ]);
 
-        // Filter jika dipilih
-        if ($this->filter_kategori) {
-            $query->where('kategori_id', $this->filter_kategori);
-        }
-        if ($this->filter_supplier) {
-            $query->where('supplier_id', $this->filter_supplier);
-        }
+        $produks = Produk::with(['kategori', 'supplier'])
+            ->when($this->filter_kategori != '', fn($query) =>
+                $query->where('kategori_id', $this->filter_kategori)
+            )
+            ->when($this->filter_supplier != '', fn($query) =>
+                $query->where('supplier_id', $this->filter_supplier)
+            )
+            ->get();
 
-        // filter jika ada
         return view('livewire.produk-crud', [
-            'produks' => $query->get(),
+            'produks' => $produks,
             'kategoris' => Kategori::all(),
             'suppliers' => Supplier::all(),
-        ]);
+        ])->layout('layouts.sidebar');
+    }
+
+
+    public function updated($property)
+    {
     }
 
     public function create()
@@ -42,27 +50,14 @@ class ProdukCrud extends Component
         $this->openModal();
     }
 
-    public function openModal() { $this->isOpen = true; }
-    public function closeModal() { $this->isOpen = false; }
-
-    private function resetInputFields()
-    {
-        $this->nama_produk = '';
-        $this->harga = '';
-        $this->stok = '';
-        $this->kategori_id = '';
-        $this->supplier_id = '';
-        $this->produk_id = '';
-    }
-
     public function store()
     {
         $this->validate([
             'nama_produk' => 'required',
             'harga' => 'required|integer',
             'stok' => 'required|integer',
-            'kategori_id' => 'required',
-            'supplier_id' => 'required',
+            'kategori_id' => 'required|exists:kategoris,id',
+            'supplier_id' => 'required|exists:suppliers,id',
         ]);
 
         Produk::updateOrCreate(['id' => $this->produk_id], [
@@ -73,10 +68,9 @@ class ProdukCrud extends Component
             'supplier_id' => $this->supplier_id,
         ]);
 
-        session()->flash('message', $this->produk_id ? 'Produk Updated.' : 'Produk Created.');
+        session()->flash('message', $this->produk_id ? 'Produk berhasil diperbarui.' : 'Produk berhasil ditambahkan.');
+
         $this->resetInputFields();
-        $this->filter_kategori = '';
-        $this->filter_supplier = '';
         $this->closeModal();
     }
 
@@ -94,7 +88,33 @@ class ProdukCrud extends Component
 
     public function delete($id)
     {
-        Produk::find($id)->delete();
-        session()->flash('message', 'Produk Deleted.');
+        Produk::findOrFail($id)->delete();
+        session()->flash('message', 'Produk berhasil dihapus.');
+    }
+
+    public function resetFilter()
+    {
+        $this->filter_kategori = '';
+        $this->filter_supplier = '';
+    }
+
+    private function resetInputFields()
+    {
+        $this->nama_produk = '';
+        $this->harga = '';
+        $this->stok = '';
+        $this->kategori_id = '';
+        $this->supplier_id = '';
+        $this->produk_id = '';
+    }
+
+    private function openModal()
+    {
+        $this->isOpen = true;
+    }
+
+    private function closeModal()
+    {
+        $this->isOpen = false;
     }
 }

@@ -31,7 +31,7 @@ class PenjualanDanLaporan extends Component
         return view('livewire.penjualan-dan-laporan', [
             'produks' => $produks,
             'totalPenjualan' => $totalPenjualan,
-        ]);
+        ])->layout('layouts.sidebar');
     }
 
     public function create()

@@ -13,7 +13,7 @@ class KategoriCrud extends Component
     public function render()
     {
         $this->kategoris = Kategori::all();
-        return view('livewire.kategori-crud');
+        return view('livewire.kategori-crud')->layout('layouts.sidebar');
     }
 
     public function create()
