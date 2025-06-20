@@ -8,11 +8,10 @@ use Illuminate\View\View;
 class GuestLayout extends Component
 {
     /**
-     * Get the view / contents that represent the component.
+     * Render the layout component.
      */
     public function render(): View
     {
-        // Ubah ke path komponen Blade
         return view('components.layouts.guest');
     }
 }
